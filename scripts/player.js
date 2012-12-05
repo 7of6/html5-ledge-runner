@@ -4,8 +4,10 @@
     }
     Player.prototype = new createjs.BitmapAnimation();
 
-    // constructor:
-    Player.prototype.BitmapAnimation_initialize = Player.prototype.initialize; //unique to avoid overiding base class
+    // --------------------------------------------------------------------------
+    // Constructor
+    // --------------------------------------------------------------------------
+    Player.prototype.BitmapAnimation_initialize = Player.prototype.initialize;
    
     Player.prototype.initialize = function (imgPlayer) {
         
@@ -19,30 +21,30 @@
         });
         
         this.snapToPixel = true;
-
         this.BitmapAnimation_initialize(localSpriteSheet);
-
-        this.gotoAndPlay("run"); 	//animate
+        this.gotoAndPlay("run"); 	
                 
     }
-        
+    
+    // --------------------------------------------------------------------------
+    // Reset Player
+    // --------------------------------------------------------------------------
     Player.prototype.reset = function() {
     	this.velocity = {x:10*Game.scale,y:25*Game.scale};
        	this.onGround = false;
     };
-
+    
+    // --------------------------------------------------------------------------
+    // Update
+    // --------------------------------------------------------------------------
     Player.prototype.tick = function () {
 
         this.velocity.y += 1 * Game.scale;
-
-		// preparing the variables
 		var moveBy = {x:0, y:this.velocity.y},
 			collision = null,
 			collideables = Game.getCollideables();
 
 		collision = calculateCollision(this, 'y', collideables, moveBy);
-		// moveBy is now handled by 'calculateCollision'
-		// and can also be 0 - therefore we won't have to worry
 		this.y += moveBy.y;
 
 		if ( !collision ) {
@@ -50,9 +52,6 @@
 				this.onGround = false;
 			}
 		} else {
-			// the hero can only be 'onGround'
-			// when he's hitting floor and not
-			// some ceiling
 			if ( moveBy.y >= 0 ) {
 				this.onGround = true;
 			}
@@ -65,9 +64,10 @@
                 
     }
         
+    // --------------------------------------------------------------------------
+    // Jump
+    // --------------------------------------------------------------------------
     Player.prototype.jump = function() {
-    	// if the hero is "on the ground"
-    	// let him jump, physically correct!
 		if ( this.onGround ) {
             this.gotoAndPlay("jump");
             

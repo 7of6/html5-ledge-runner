@@ -12,13 +12,6 @@ function _game()
 	var self = this,
 		w = getWidth(),
 		h = getHeight(),
-		// to have a good looking scaling
-		// we will snap all values to 0.5-steps
-		// so 1.4 e.g. becomes 1.5 - you can also
-		// set the snapping to 1.0 e.g.
-		// however I would recommend to use only 
-		// a multiple of 0.5 - but play around
-		// with it and see the results
 		scale = snapValue(Math.min(w/BASE_WIDTH,h/BASE_HEIGHT),0.5),    
 		ticks = 0,
 		canvas,
@@ -41,17 +34,22 @@ function _game()
 	self.height = h;
 	self.scale = scale;
     
-    // holds all collideable objects
 	var collideables = [];
 	self.getCollideables = function() { return collideables; };
     
+    // --------------------------------------------------------------------------
+    // Preload
+    // --------------------------------------------------------------------------
     self.initPreload = function()
     {            
         preload = new createjs.PreloadJS();
         preload.onComplete = self.handleComplete;
         preload.loadManifest(MANIFEST);
     }
-        
+       
+    // --------------------------------------------------------------------------
+    // Initialization
+    // --------------------------------------------------------------------------
     self.initGame = function()
     {
         canvas = document.createElement('canvas');
@@ -79,8 +77,6 @@ function _game()
         
         self.reset();   
         
-        
-        // Setting the listeners
 		if (createjs.Touch.isSupported()) { createjs.Touch.enable(stage); }
             
         stage.onPress = self.handleKeyDown;
@@ -93,7 +89,10 @@ function _game()
 		createjs.Ticker.addListener(self.tick, self);
         
     }
-        
+    
+    // --------------------------------------------------------------------------
+    // Reset Game
+    // --------------------------------------------------------------------------
     self.reset = function() {
         
         score = 0;
@@ -107,7 +106,6 @@ function _game()
 		player.reset();
 		world.addChild(player);
 
-		// add a platform for the hero to collide with
 		self.addPlatform(10 * scale, h/1.25);
 
 		var c, l = w / (preload.getResult("canyon-asset").result.width * 1.5) + 2, atX=0, atY = h/1.25;
@@ -118,7 +116,10 @@ function _game()
 			self.addPlatform(atX,atY);
 		}
 	}
-        
+    
+    // --------------------------------------------------------------------------
+    // Update
+    // --------------------------------------------------------------------------
     self.tick = function(e)
 	{
 		var c,p,l;
@@ -131,10 +132,6 @@ function _game()
 			return;
 		}
 
-		// if the hero "leaves" it's bounds of
-		// screenWidth * 0.3 and screenHeight * 0.3(to both ends)
-		// we will reposition the "world-container", so our hero
-		// is allways visible
 		if ( player.x > w*.3 ) {
 			world.x = -player.x + w*.3;
 		}
@@ -155,46 +152,13 @@ function _game()
         score += 0.25;
         scoreDisplay.text = "Distance: "+Math.floor(score)+"m";
 
-
-		// the background 'moves' about 45% of the speed of the world-object
-		// and it's position snaps back to zero once it's reached a limit 
-		//background.x = (world.x * .45) % (w/GRID_HORIZONTAL);
-		//background.y = (world.y * .45) % (h/GRID_VERTICAL);
-
-//		l = parallaxObjects.length;
-//		for ( c = 0; c < l; c++ ) {
-//			p = parallaxObjects[c];
-//			// just change the x-coordinate
-//			// a change in the y-coordinate would not have any
-//			// result, since it's just a white line
-//			p.x = ((world.x * p.speedFactor - p.offsetX) % p.range) + p.range;
-//		}
-
 		stage.update();
 	}
-        
-    self.handleComplete = function()
-    {
-        self.initGame();
-    }
-        
-    self.handleKeyDown = function(e)
-	{
-		if ( !keyDown ) {
-			keyDown = true;
-			player.jump();
-		}
-	}
-
-	self.handleKeyUp = function(e)
-	{
-		keyDown = false;
-	}
-        
-    // this method adds a platform at the
-	// given x- and y-coordinates and adds
-	// it to the collideables-array
-	self.lastPlatform = null;
+    
+    // --------------------------------------------------------------------------
+    // Platform Management
+    // --------------------------------------------------------------------------
+    self.lastPlatform = null;
 	self.addPlatform = function(x,y) {
         
 		x = Math.round(x);
@@ -215,6 +179,30 @@ function _game()
 		platform.y = self.lastPlatform.y + (Math.random() * 100 - 50)* scale;
 		self.lastPlatform = platform;
 	}
+        
+    // --------------------------------------------------------------------------
+    // Event Handlers
+    // --------------------------------------------------------------------------
+    self.handleComplete = function()
+    {
+        self.initGame();
+    }
+        
+    self.handleKeyDown = function(e)
+	{
+		if ( !keyDown ) {
+			keyDown = true;
+			player.jump();
+		}
+	}
+
+	self.handleKeyUp = function(e)
+	{
+		keyDown = false;
+	}
     
+    // --------------------------------------------------------------------------
+    // Initial Call
+    // --------------------------------------------------------------------------
     self.initPreload();
 }
